@@ -12,3 +12,8 @@ app.log
 # IDE
 .vscode/
 .idea/
+
+# Agent specific
+.agent/
+.gsd/
+.gemini/
