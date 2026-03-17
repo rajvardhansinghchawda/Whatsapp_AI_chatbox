@@ -44,6 +44,13 @@ class AIAgent:
             
             response_text = completion.choices[0].message.content
             
+            # Post-processing to remove any self-identification as "Groq" or "Llama"
+            # Groq is fast but sometimes it likes to identify itself if the system prompt is ignored
+            if "i am llama" in response_text.lower() or "i am groq" in response_text.lower():
+                logger.warning(f"Persona leak detected for {phone_number}. Cleaning response.")
+                response_text = response_text.replace("I am Llama", "I am your hospital assistant")
+                response_text = response_text.replace("I am Groq", "I am your hospital assistant")
+
             # Add assistant response to history
             self.chat_sessions[phone_number].append({"role": "assistant", "content": response_text})
             
@@ -54,12 +61,17 @@ class AIAgent:
             return response_text.strip()
             
         except Exception as e:
-            error_type = type(e).__name__
-            logger.error(f"Groq API Error ({error_type}) for {phone_number}: {str(e)}")
+            error_msg = str(e).lower()
+            logger.error(f"Groq API Error ({type(e).__name__}) for {phone_number}: {str(e)}")
             
-            if "rate_limit_exceeded" in str(e).lower() or "429" in str(e):
-                return "The AI service is currently busy (Rate limit reached). Please wait a minute and try again."
+            if "rate_limit" in error_msg or "429" in error_msg:
+                return "The hospital AI service is very busy right now. Please wait a moment and try again."
             
-            return f"Error: {error_type}. I'm having trouble processing your request. Please try again later."
+            if "context_length" in error_msg:
+                logger.warning(f"Context length exceeded for {phone_number}. Clearing history.")
+                self.chat_sessions[phone_number] = [self.chat_sessions[phone_number][0]] # Keep system prompt
+                return "Your conversation was getting a bit long! I've cleared the history to keep our chat smooth. How can I help you further?"
+
+            return "I'm having a bit of trouble processing your hospital query. Please try again soon."
 
 ai_agent = AIAgent()
