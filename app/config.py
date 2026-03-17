@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     WHATSAPP_ACCESS_TOKEN: str
     PHONE_NUMBER_ID: str
     VERIFY_TOKEN: str
-    GOOGLE_API_KEY: str
+    GROQ_API_KEY: str
     WHATSAPP_API_VERSION: str = "v18.0"
     
     # Hospital System Prompt
