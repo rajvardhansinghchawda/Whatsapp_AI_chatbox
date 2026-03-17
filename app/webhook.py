@@ -47,8 +47,9 @@ async def handle_whatsapp_message(request: Request):
                             if phone_number and message_text:
                                 logger.info(f"Processing message from {phone_number}: {message_text}")
                                 
-                                # 1. Generate AI Response with context (phone_number)
-                                ai_response = ai_agent.get_response(message_text, phone_number)
+                                # 1. Generate Grounded AI Response via Pipeline
+                                from apps.ai.pipeline import process_user_query
+                                ai_response = process_user_query(message_text, phone_number)
                                 
                                 # 2. Send response back via WhatsApp
                                 whatsapp_client.send_text_message(phone_number, ai_response)

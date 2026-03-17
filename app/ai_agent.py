@@ -14,9 +14,10 @@ class AIAgent:
         except Exception as e:
             logger.error(f"Failed to initialize Groq AIAgent: {e}", exc_info=True)
 
-    def get_response(self, user_message: str, phone_number: str) -> str:
+    def get_response(self, user_message: str, phone_number: str, system_context: str = "") -> str:
         """
         Sends the user message to Groq and manages chat history for each phone number.
+        Incorporates optional system_context for grounded data (API results).
         """
         logger.info(f"Processing message with Groq for {phone_number}: {user_message}")
         
@@ -26,6 +27,14 @@ class AIAgent:
             self.chat_sessions[phone_number] = [
                 {"role": "system", "content": settings.SYSTEM_PROMPT}
             ]
+
+        # Update system prompt with fresh context if provided
+        # We always keep the first message as the system entry, but we can update its content
+        final_system_prompt = settings.SYSTEM_PROMPT
+        if system_context:
+            final_system_prompt = f"{settings.SYSTEM_PROMPT}\n\n### LIVE DATA CONTEXT ###\n{system_context}\n\nSTRICT RULE: Use ONLY this data for hospital queries. Never invent names or counts."
+        
+        self.chat_sessions[phone_number][0]["content"] = final_system_prompt
 
         # Add user message to history
         self.chat_sessions[phone_number].append({"role": "user", "content": user_message})
@@ -45,7 +54,6 @@ class AIAgent:
             response_text = completion.choices[0].message.content
             
             # Post-processing to remove any self-identification as "Groq" or "Llama"
-            # Groq is fast but sometimes it likes to identify itself if the system prompt is ignored
             if "i am llama" in response_text.lower() or "i am groq" in response_text.lower():
                 logger.warning(f"Persona leak detected for {phone_number}. Cleaning response.")
                 response_text = response_text.replace("I am Llama", "I am your hospital assistant")
@@ -54,7 +62,7 @@ class AIAgent:
             # Add assistant response to history
             self.chat_sessions[phone_number].append({"role": "assistant", "content": response_text})
             
-            # Limit history size to prevent context overflow (e.g., keep last 10 exchanges + system prompt)
+            # Limit history size (keep last 10 exchanges + system prompt)
             if len(self.chat_sessions[phone_number]) > 21:
                 self.chat_sessions[phone_number] = [self.chat_sessions[phone_number][0]] + self.chat_sessions[phone_number][-20:]
 

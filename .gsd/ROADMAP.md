@@ -16,11 +16,11 @@
 **Requirements**: REQ-01 (SDK install), REQ-02 (Config updates)
 
 ### Phase 2: Agent Migration
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Update `ai_agent.py` to use Groq instead of Gemini.
 **Requirements**: REQ-03 (Agent logic), REQ-04 (Persona port)
 
 ### Phase 3: Verification & Polish
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Verify the end-to-end flow and handle edge cases.
 **Requirements**: REQ-05 (Smoke testing), REQ-06 (Error handling)
