@@ -1,65 +1,106 @@
-# WhatsApp Hospital AI Bot
+# 🏥 Aarohi: WhatsApp Hospital AI Bot
 
-A senior-level WhatsApp AI chatbot system integrated with Meta's WhatsApp Cloud API for a Hospital Management System (HMS).
+Aarohi is a premium WhatsApp AI chatbot designed for real-time Healthcare Resource Coordination. Integrated with **Meta's WhatsApp Cloud API** and powered by **Groq (Llama 3.1)**, it helps patients and caregivers find ICU beds, doctors, and emergency services across multiple hospitals.
 
-## Features
-- **Stateful Memory**: Remembers past conversations for each user based on their phone number.
-- **Webhook Handling**: Secure verification and processing of incoming WhatsApp messages.
-- **AI Integration**: Powered by Google's Gemini API (`gemini-flash-latest`) with specialized hospital system prompt and safety overrides.
-- **WhatsApp Client**: Robust client for sending responses via Meta Graph API.
-- **Modern Stack**: Built with FastAPI for high performance.
+---
 
-## Project Structure
+## ✨ Key Features
+
+- **🧠 Stateful Memory**: Maintains conversation context for each user based on their phone number.
+- **📍 Location Intelligence**: Processes both text-based locations and **WhatsApp Location Pins** for nearby hospital discovery.
+- **🚑 Emergency Protocol**: Detects critical symptoms (e.g., chest pain, accidents) and prioritizes immediate hospital/ambulance routing.
+- **💉 Real-time Data**: Integrated with a live hospital management backend for up-to-date bed availability (ICU, Ventilator, General).
+- **🗣️ Multi-lingual Support**: Handles English, Hindi, and Hinglish for natural patient interaction.
+- **🔒 Zero-Hallucination Pipeline**: Uses a strict grounded-data approach to ensure hospital names and counts are never invented.
+
+---
+
+## 🛠️ Modern Tech Stack
+
+- **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (High-performance Python web framework)
+- **AI Engine**: [Groq](https://groq.com/) (Llama-3.1-8b-instant) for lightning-fast inference.
+- **Messaging**: [Meta WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api)
+- **Validation**: [Pydantic v2](https://docs.pydantic.dev/) & Pydantic Settings
+
+---
+
+## 📂 Project Structure
+
 ```text
-whatsapp_hospital_bot/
-│
-├── app/
-│   ├── main.py           # Entry point
-│   ├── webhook.py        # Webhook handler
-│   ├── ai_agent.py       # AI interaction layer
-│   ├── whatsapp_client.py # WhatsApp API client
-│   ├── config.py         # Configuration management
-│
-├── .env                  # Secrets (gitignored)
-├── .env.example          # Environment template
-├── requirements.txt      # Dependencies
-└── README.md             # Documentation
+chatbox/
+├── app/                  # FastAPI Application Core
+│   ├── main.py           # Application Entry Point
+│   ├── webhook.py        # WhatsApp Webhook & Event Handlers
+│   ├── ai_agent.py       # Groq AI Orchestration
+│   ├── whatsapp_client.py # Meta Graph API Integration
+│   └── config.py         # System Prompts & Configuration
+├── apps/                 # Modular Business Logic
+│   └── ai/
+│       ├── api_client.py # Hospital Backend API Client
+│       └── pipeline.py   # Detection & Grounding Pipeline
+├── scripts/              # Utility & Automation Scripts
+├── tests/                # Unit & Integration Tests
+├── .env                  # Environment Secrets
+├── requirements.txt      # Python Dependencies
+└── README.md             # Project Documentation
 ```
 
-## Setup Instructions
+---
 
-1. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🚀 Setup Instructions
 
-2. **Configure Environment Variables**:
-   Copy `.env.example` to `.env` and fill in your credentials from Meta Developer Console and Google.
-   ```bash
-   WHATSAPP_ACCESS_TOKEN=...
-   PHONE_NUMBER_ID=...
-   VERIFY_TOKEN=...
-   GOOGLE_API_KEY=...
-   ```
+### 1. Prerequisites
+- Python 3.9+
+- Meta Developer Account (WhatsApp Cloud API access)
+- Groq API Key
 
-3. **Run the Application**:
-   ```bash
-   python -m app.main
-   ```
-   The server will start on `http://localhost:8000`.
+### 2. Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+cd chatbox
 
-4. **Expose Local Server**:
-   Use `ngrok` to expose your local port 8000 to the internet for Meta's Webhook.
-   ```bash
-   ngrok http 8000
-   ```
+# Install dependencies
+pip install -r requirements.txt
+```
 
-5. **Configure Meta Webhook**:
-   - Go to your app in Facebook Developer Console.
-   - Set Webhook URL to `https://your-ngrok-url/webhook`.
-   - Set Verify Token to match the one in your `.env`.
-   - **Important**: In the Webhooks setup, click "Manage" and subscribe to the `messages` field.
+### 3. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+WHATSAPP_ACCESS_TOKEN=your_meta_token
+PHONE_NUMBER_ID=your_phone_id
+VERIFY_TOKEN=your_custom_verify_token
+GROQ_API_KEY=your_groq_key
+```
 
-## Memory Implementation
-The bot uses Gemini's `ChatSession` to maintain context. History is currently stored in-memory (it will reset if the server restarts).
+### 4. Running the Bot
+```bash
+# Start the FastAPI server
+python -m app.main
+```
+The server defaults to `http://localhost:8000`.
 
+### 5. Webhook Integration
+1. Use **ngrok** to expose your local port: `ngrok http 8000`.
+2. Update the Webhook URL in Meta's Dashboard to `https://<ngrok-id>.ngrok-free.app/webhook`.
+3. Subscribe to **messages** in the Webhooks settings.
+
+---
+
+## 🤖 Persona: Aarohi
+Aarohi is designed to be **empathetic, calm, and accurate**. She follows a strict interaction style:
+- Clear, simple conversational language.
+- Maximum 3 short sentences per response.
+- No bullet points or markdown in messages (optimized for WhatsApp).
+- Directs users to verified resources only.
+
+---
+
+## ⚠️ Limitations
+- **History Storage**: Currently uses in-memory storage (clears on server restart).
+- **Rate Limits**: Subject to Groq and Meta Cloud API usage tiers.
+
+---
+
+## 🛡️ License & Disclaimer
+*This project is for Healthcare Resource Coordination. Always consult medical professionals for clinical advice.*
